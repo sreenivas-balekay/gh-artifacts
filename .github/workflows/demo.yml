@@ -18,6 +18,11 @@ jobs:
   build:
     needs: test
     runs-on: windows-latest
+    # below output is for exporting js file name to other jobs.
+    outputs:
+    # read context in docs https://docs.github.com/en/actions/learn-github-actions/contexts#job-context 
+    # publish is the id of the step
+      script-file: ${{ steps.publish.outputs.script-file }}
     steps:
       - name: Get code
         uses: actions/checkout@v3
@@ -25,15 +30,20 @@ jobs:
         run: npm ci
       - name: Build website
         run: npm run build
+      - name: Publish js filename
+        id: publish
+      # $GITHUB_OUTPUT this command stores the values
+        run: find dist/assets/*.js -type f -execdir echo 'script-file={}' >> $GITHUB_OUTPUT ';'
         # for artifacts https://github.com/actions/upload-artifact
       - name: upload artifacts
         uses: actions/upload-artifact@v3
         with: 
           name: dist-files
           # adding | for multiple files or folders else no need
-          path: |
-            dist
-            package.json
+          path: dist
+          # path: |
+          #   dist
+          #   package.json
   deploy:
     needs: build
     runs-on: windows-latest
