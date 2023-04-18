@@ -33,7 +33,7 @@ jobs:
       - name: Publish js filename
         id: publish
       # $GITHUB_OUTPUT this command stores the values
-        run: find dist/assets/*.js -type f -execdir echo 'script-file={}' >> $GITHUB_OUTPUT ';'
+        run: find dist/assets/*.js -type f -execdir echo '::set-output name=script-file::{}' ;'
         # for artifacts https://github.com/actions/upload-artifact
       - name: upload artifacts
         uses: actions/upload-artifact@v3
@@ -57,5 +57,9 @@ jobs:
           # the below cmd simply lists the files of the current folder
       - name: output contents
         run: ls
+      - name: output file name
+      # about needs check context docs
+      # outputs is a action identifier
+        run: echo "${{ needs.build.outputs.script-file }}"
       - name: Deploy
         run: echo "Deploying..."
